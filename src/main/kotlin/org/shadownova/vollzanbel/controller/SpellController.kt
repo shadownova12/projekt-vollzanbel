@@ -30,4 +30,11 @@ class SpellController(val spellService: SpellService) {
         val spell = spellService.findSpell(id)
         return if (spell != null) ResponseEntity.ok(spell) else ResponseEntity.notFound().build()
     }
+
+    @GetMapping("/{id}/summary")
+    fun getSpellSummary(@PathVariable id: String): ResponseEntity<SpellSummary> {
+        log.info("Request: GET /spells/{}/summary", id)
+        val spell = spellService.findSpellSummary(id)
+        return if (spell != null) ResponseEntity.ok(spell) else ResponseEntity.notFound().build()
+    }
 }

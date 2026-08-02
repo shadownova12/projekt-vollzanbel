@@ -17,4 +17,8 @@ class SpellService(val spellRepository: SpellRepository) {
     fun findSpell(id: String): Spell? {
         return spellRepository.findById(id).orElse(null)
     }
+
+    fun findSpellSummary(id: String): SpellSummary? {
+        return spellRepository.findSpellSummary(id)
+    }
 }

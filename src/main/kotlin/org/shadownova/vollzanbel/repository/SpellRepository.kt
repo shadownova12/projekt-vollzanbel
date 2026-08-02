@@ -67,6 +67,9 @@ interface SpellRepository : JpaRepository<Spell, String> {
     @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school) FROM Spell s ORDER BY s.name")
     fun getAllSpellSummaries(): List<SpellSummary>
 
+    @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school) FROM Spell s WHERE s.index=:index")
+    fun findSpellSummary(index: String): SpellSummary
+
     fun findByLevelAndSchool(
         level: Int,
         school: String

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: vollzanbel
+
+  # Use spring.datasource properties so Spring Boot auto-configures a DataSource
+  datasource:
+    url: jdbc:postgresql://db.ynfjkyheammpaqrtkxdn.supabase.co:5432/postgres
+    username: postgres
+    password:
+    driver-class-name: org.postgresql.Driver
+    # HikariCP (default) settings - adjust as needed
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+server:
+  servlet:
+    context-path: /vollzanbel-api
+
+  # Keep legacy spring.jdbc settings removed—use datasource above. If you need jdbc template
+  # beans, Spring Boot will expose them when a DataSource is configured.
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

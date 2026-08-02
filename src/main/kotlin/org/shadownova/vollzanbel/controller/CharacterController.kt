@@ -3,13 +3,16 @@ package org.shadownova.vollzanbel.controller
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.shadownova.vollzanbel.dto.PlayerCharacter
 import org.shadownova.vollzanbel.dto.CharacterSpellRequest
+import org.shadownova.vollzanbel.dto.NewPlayerCharacter
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import org.springframework.http.HttpStatus
 import org.shadownova.vollzanbel.repository.CharacterRepository
+import org.shadownova.vollzanbel.repository.CharacterRow
 import org.shadownova.vollzanbel.repository.CharacterSpell
 import org.shadownova.vollzanbel.service.CharacterService
 
@@ -22,39 +25,68 @@ class CharacterController(
 ) {
 
     @GetMapping
-    fun list(@RequestHeader("X-Device-Id") deviceId: String): Map<String, Any> {
-        val names = characterRepository.listNames(deviceId)
+    fun list(@RequestHeader("X-User-Id") userId: Long): Map<String, Any> {
+        val names = characterRepository.listNames(userId)
         val result = names.map { mapOf("name" to it) }
         return mapOf("characters" to result)
     }
 
     @GetMapping("/{name}")
-    fun get(@RequestHeader("X-Device-Id") deviceId: String, @PathVariable name: String): ResponseEntity<Any> {
-        val row = characterRepository.findByDeviceIdAndName(deviceId, name) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Character not found"))
+    fun get(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String): ResponseEntity<PlayerCharacter> {
+        val row = characterRepository.findByUserIdAndName(userId, name) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
 
-        val compressed = row.compressedData ?: return ResponseEntity.ok(null)
+//        val compressed = row.compressedData
+        val json = gunzip(row.compressedData).toString(Charsets.UTF_8)
+        println(json)
 
-        return try {
-            val jsonBytes = gunzip(compressed)
-            val obj = mapper.readValue(jsonBytes, Any::class.java)
-            ResponseEntity.ok(obj)
-        } catch (_: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to decompress character data"))
-        }
+         return ResponseEntity.ok(PlayerCharacter(
+             id = row.id,
+             userId = row.userId,
+             name = row.name,
+             characterSheet = mapper.readValue(gunzip(row.compressedData), Any::class.java)))
+//        return try {
+////            val jsonBytes = gunzip(compressed)
+////            val obj = mapper.readValue(jsonBytes, Any::class.java)
+//            ResponseEntity.ok(obj)
+//        } catch (_: Exception) {
+//            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to decompress character data"))
+//        }
+    }
+
+    @PostMapping
+    fun newPlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @RequestBody body: NewPlayerCharacter): Map<String, Any> {
+        val compressed = gzip(mapper.writeValueAsBytes(body.characterSheet))
+
+        characterRepository.save(
+            CharacterRow(
+                userId = userId,
+                name = body.name,
+                compressedData = compressed
+            )
+        )
+
+        return mapOf("name" to body.name)
     }
 
     @PutMapping("/{name}")
-    fun put(@RequestHeader("X-Device-Id") deviceId: String, @PathVariable name: String, @RequestBody body: Any): Map<String, Any> {
-        val jsonBytes = mapper.writeValueAsBytes(body)
-        val compressed = gzip(jsonBytes)
+    fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: PlayerCharacter): Map<String, Any> {
+        val compressed = gzip(mapper.writeValueAsBytes(body.characterSheet))
 
-        characterRepository.save(deviceId, name, compressed)
+        characterRepository.save(
+            CharacterRow(
+                id = body.id,
+                userId = userId,
+                name = name,
+                compressedData = compressed
+            )
+        )
+
         return mapOf("name" to name)
     }
 
     @DeleteMapping("/{name}")
-    fun delete(@RequestHeader("X-Device-Id") deviceId: String, @PathVariable name: String): ResponseEntity<Void> {
-        characterRepository.delete(deviceId, name)
+    fun delete(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String): ResponseEntity<Void> {
+        characterRepository.deleteByUserIdAndName(userId, name)
         return ResponseEntity.noContent().build()
     }
 
@@ -64,8 +96,8 @@ class CharacterController(
     }
 
     @PostMapping("/{characterId}/spells")
-    fun addSpell(@PathVariable charId: Long, @RequestBody requestBody: CharacterSpellRequest): ResponseEntity<CharacterSpell> {
-        return ResponseEntity.ok(characterService.addSpell(charId, requestBody))
+    fun addSpell(@PathVariable characterId: Long, @RequestBody requestBody: CharacterSpellRequest): ResponseEntity<CharacterSpell> {
+        return ResponseEntity.ok(characterService.addSpell(characterId, requestBody))
     }
 
     @DeleteMapping("/{characterId}/spells")
