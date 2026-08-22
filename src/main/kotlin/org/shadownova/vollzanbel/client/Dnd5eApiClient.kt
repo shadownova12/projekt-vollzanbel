@@ -1,6 +1,12 @@
 package org.shadownova.vollzanbel.client
 
 import org.shadownova.vollzanbel.dto.SpellListResponse
+import org.shadownova.vollzanbel.dto.ClassFeatureDetailResponse
+import org.shadownova.vollzanbel.dto.ClassFeatureListResponse
+import org.shadownova.vollzanbel.dto.SpeciesTraitDetailResponse
+import org.shadownova.vollzanbel.dto.SpeciesTraitListResponse
+import org.shadownova.vollzanbel.dto.RaceDetailResponse
+import org.shadownova.vollzanbel.dto.RaceListResponse
 import org.shadownova.vollzanbel.repository.Spell
 import org.shadownova.vollzanbel.dto.SpellDetailResponse
 import org.shadownova.vollzanbel.dto.toEntity
@@ -35,4 +41,34 @@ class Dnd5eApiClient(
 
         return detail.toEntity()
     }
+
+    fun getClassFeatureList(): ClassFeatureListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/features")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(ClassFeatureListResponse::class.java)!!
+
+    fun getClassFeature(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/features/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(ClassFeatureDetailResponse::class.java)!!.toEntity()
+
+    fun getSpeciesTraitList(): SpeciesTraitListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/traits")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(SpeciesTraitListResponse::class.java)!!
+
+    fun getSpeciesTrait(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/traits/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(SpeciesTraitDetailResponse::class.java)!!.toEntity()
+
+    fun getRaceList(): RaceListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/races")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(RaceListResponse::class.java)!!
+
+    fun getRace(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/races/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(RaceDetailResponse::class.java)!!.toEntity()
 }

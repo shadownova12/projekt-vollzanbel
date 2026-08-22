@@ -13,6 +13,10 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 server:
   servlet:
     context-path: /vollzanbel-api

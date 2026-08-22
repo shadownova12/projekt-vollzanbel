@@ -1,6 +1,9 @@
 package org.shadownova.vollzanbel.schedule
 
 import org.shadownova.vollzanbel.service.SpellSyncService
+import org.shadownova.vollzanbel.service.ClassFeatureSyncService
+import org.shadownova.vollzanbel.service.SpeciesTraitSyncService
+import org.shadownova.vollzanbel.service.RaceSyncService
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -9,7 +12,10 @@ import org.springframework.stereotype.Component
 // Runs the sync when the application is fully ready. To use ApplicationRunner
 // instead, remove this class or delete the @Component annotation.
 class StartupInitializer(
-    private val spellSyncService: SpellSyncService
+    private val spellSyncService: SpellSyncService,
+    private val classFeatureSyncService: ClassFeatureSyncService,
+    private val speciesTraitSyncService: SpeciesTraitSyncService,
+    private val raceSyncService: RaceSyncService,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -17,5 +23,8 @@ class StartupInitializer(
         // method remains available but this class is not a bean so the event listener
         // won't be wired. Re-enable by adding @Component above the class.
         spellSyncService.syncSpells()
+        classFeatureSyncService.syncClassFeatures()
+        speciesTraitSyncService.syncSpeciesTraits()
+        raceSyncService.syncRaces()
     }
 }
