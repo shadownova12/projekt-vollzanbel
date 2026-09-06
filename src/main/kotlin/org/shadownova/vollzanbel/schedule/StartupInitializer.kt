@@ -4,6 +4,8 @@ import org.shadownova.vollzanbel.service.SpellSyncService
 import org.shadownova.vollzanbel.service.ClassFeatureSyncService
 import org.shadownova.vollzanbel.service.SpeciesTraitSyncService
 import org.shadownova.vollzanbel.service.RaceSyncService
+import org.shadownova.vollzanbel.service.WeaponSyncService
+import org.shadownova.vollzanbel.service.EquipmentCategorySyncService
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -16,6 +18,8 @@ class StartupInitializer(
     private val classFeatureSyncService: ClassFeatureSyncService,
     private val speciesTraitSyncService: SpeciesTraitSyncService,
     private val raceSyncService: RaceSyncService,
+    private val weaponSyncService: WeaponSyncService,
+    private val equipmentCategorySyncService: EquipmentCategorySyncService,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -26,5 +30,7 @@ class StartupInitializer(
         classFeatureSyncService.syncClassFeatures()
         speciesTraitSyncService.syncSpeciesTraits()
         raceSyncService.syncRaces()
+        weaponSyncService.syncWeapons()
+        equipmentCategorySyncService.syncEquipmentCategories()
     }
 }

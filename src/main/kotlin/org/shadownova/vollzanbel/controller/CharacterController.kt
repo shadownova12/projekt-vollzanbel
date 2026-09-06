@@ -86,8 +86,11 @@ class CharacterController(
 
     @DeleteMapping("/{name}")
     fun delete(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String): ResponseEntity<Void> {
-        characterRepository.deleteByUserIdAndName(userId, name)
-        return ResponseEntity.noContent().build()
+        return if (characterService.deleteCharacter(userId, name)) {
+            ResponseEntity.noContent().build()
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 
     @GetMapping("/{characterId}/spells")
@@ -123,4 +126,3 @@ class CharacterController(
         }
     }
 }
-

@@ -7,6 +7,12 @@ import org.shadownova.vollzanbel.dto.SpeciesTraitDetailResponse
 import org.shadownova.vollzanbel.dto.SpeciesTraitListResponse
 import org.shadownova.vollzanbel.dto.RaceDetailResponse
 import org.shadownova.vollzanbel.dto.RaceListResponse
+import org.shadownova.vollzanbel.dto.WeaponCategoryResponse
+import org.shadownova.vollzanbel.dto.WeaponDetailResponse
+import org.shadownova.vollzanbel.dto.EquipmentCategoryListResponse
+import org.shadownova.vollzanbel.dto.MagicItemDetailResponse
+import org.shadownova.vollzanbel.dto.MagicItemListResponse
+import org.shadownova.vollzanbel.dto.toWeaponEntity
 import org.shadownova.vollzanbel.repository.Spell
 import org.shadownova.vollzanbel.dto.SpellDetailResponse
 import org.shadownova.vollzanbel.dto.toEntity
@@ -71,4 +77,31 @@ class Dnd5eApiClient(
         .get().uri("https://www.dnd5eapi.co/api/2014/races/$index")
         .accept(MediaType.APPLICATION_JSON).retrieve()
         .body(RaceDetailResponse::class.java)!!.toEntity()
+
+    fun getWeaponCategory(): WeaponCategoryResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/equipment-categories/weapon")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(WeaponCategoryResponse::class.java)!!
+
+    fun getWeapon(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/equipment/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(WeaponDetailResponse::class.java)!!.toEntity()
+
+    fun getMagicItemList(): MagicItemListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/magic-items")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(MagicItemListResponse::class.java)!!
+
+    fun getMagicItem(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/magic-items/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(MagicItemDetailResponse::class.java)!!.let { detail ->
+            detail.takeIf { it.equipmentCategory?.index == "weapon" }?.toWeaponEntity()
+        }
+
+    fun getEquipmentCategoryList(): EquipmentCategoryListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/equipment-categories")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(EquipmentCategoryListResponse::class.java)!!
 }

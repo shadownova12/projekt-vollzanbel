@@ -13,6 +13,8 @@ import org.shadownova.vollzanbel.dto.CreateRaceRequest
 import org.shadownova.vollzanbel.repository.Race
 import org.shadownova.vollzanbel.service.RaceService
 import org.shadownova.vollzanbel.service.RaceSyncService
+import org.shadownova.vollzanbel.service.WeaponSyncService
+import org.shadownova.vollzanbel.service.EquipmentCategorySyncService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,6 +32,8 @@ class InternalController(
     private val speciesTraitService: SpeciesTraitService,
     private val raceService: RaceService,
     private val raceSyncService: RaceSyncService,
+    private val weaponSyncService: WeaponSyncService,
+    private val equipmentCategorySyncService: EquipmentCategorySyncService,
 ) {
 
     /**
@@ -48,6 +52,12 @@ class InternalController(
 
     @PostMapping("/races/sync")
     fun syncRaces() = raceSyncService.forceSyncRaces()
+
+    @PostMapping("/weapons/sync")
+    fun syncWeapons() = weaponSyncService.forceSyncWeapons()
+
+    @PostMapping("/equipment-categories/sync")
+    fun syncEquipmentCategories() = equipmentCategorySyncService.forceSyncEquipmentCategories()
 
     @PostMapping("/traits")
     fun createTrait(@RequestBody request: CreateTraitRequest): ResponseEntity<SpeciesTrait> =

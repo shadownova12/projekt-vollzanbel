@@ -9,7 +9,9 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.Instant
 
@@ -51,5 +53,10 @@ interface CharacterSpellRepository : JpaRepository<CharacterSpell, CharacterSpel
     // property using the standard JPA property path.
     @Query("SELECT c FROM CharacterSpell c WHERE c.id.characterId = :charId")
     fun findByCharacterId(charId: Long): List<CharacterSpell>
+
+    /** Remove only the spell selections owned by one character. */
+    @Modifying
+    @Query("DELETE FROM CharacterSpell c WHERE c.id.characterId = :charId")
+    fun deleteByCharacterId(@Param("charId") charId: Long): Int
 
 }
