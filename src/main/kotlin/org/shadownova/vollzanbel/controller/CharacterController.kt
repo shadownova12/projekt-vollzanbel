@@ -35,22 +35,9 @@ class CharacterController(
     fun get(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String): ResponseEntity<PlayerCharacter> {
         val row = characterRepository.findByUserIdAndName(userId, name) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
 
-//        val compressed = row.compressedData
-        val json = gunzip(row.compressedData).toString(Charsets.UTF_8)
-        println(json)
-
-         return ResponseEntity.ok(PlayerCharacter(
-             id = row.id,
-             userId = row.userId,
-             name = row.name,
-             characterSheet = mapper.readValue(gunzip(row.compressedData), Any::class.java)))
-//        return try {
-////            val jsonBytes = gunzip(compressed)
-////            val obj = mapper.readValue(jsonBytes, Any::class.java)
-//            ResponseEntity.ok(obj)
-//        } catch (_: Exception) {
-//            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Failed to decompress character data"))
-//        }
+        return ResponseEntity.ok(PlayerCharacter(
+            id = row.id, userId = row.userId, name = row.name,
+            characterSheet = mapper.readValue(gunzip(row.compressedData), Any::class.java)))
     }
 
     @PostMapping
@@ -70,16 +57,11 @@ class CharacterController(
 
     @PutMapping("/{name}")
     fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: PlayerCharacter): Map<String, Any> {
+        val existing = characterRepository.findByUserIdAndName(userId, name)
+            ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (existing.id != body.id) throw org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT)
         val compressed = gzip(mapper.writeValueAsBytes(body.characterSheet))
-
-        characterRepository.save(
-            CharacterRow(
-                id = body.id,
-                userId = userId,
-                name = name,
-                compressedData = compressed
-            )
-        )
+        characterRepository.save(existing.copy(compressedData = compressed))
 
         return mapOf("name" to name)
     }
