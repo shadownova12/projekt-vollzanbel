@@ -21,10 +21,19 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import kotlin.jvm.java
 
+data class ApiReference(val index: String, val name: String, val url: String)
+data class ApiReferenceList(val count: Int = 0, val results: List<ApiReference> = emptyList())
+
 @Service
 class Dnd5eApiClient(
     private val restClient: RestClient
 ) {
+
+    /** Fetch a compact reference list from one of the 2014 catalog endpoints. */
+    fun getReferenceList(resource: String): List<ApiReference> = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/$resource")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(ApiReferenceList::class.java)?.results.orEmpty()
 
     // Return a deserialized SpellListResponse instead of a raw JSON String so callers
     // can work with a typed object (avoids trying to cast a String to the DTO).
