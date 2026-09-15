@@ -2,18 +2,23 @@ spring:
   application:
     name: vollzanbel
 
-  # Use spring.datasource properties so Spring Boot auto-configures a DataSource
   datasource:
-    url: jdbc:postgresql://db.ynfjkyheammpaqrtkxdn.supabase.co:5432/postgres
-    username: postgres
-    password:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vollzanbel}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+
     driver-class-name: org.postgresql.Driver
-    # HikariCP (default) settings - adjust as needed
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:10}
+      minimum-idle: ${DB_MIN_IDLE:2}
+      # Supabase/PgBouncer transaction pooling can reuse a backend connection
+      # whose server-side prepared statements were created by another client.
+      # Disable PostgreSQL server-side preparation for pooled development traffic.
+      data-source-properties:
+        prepareThreshold: 0
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
 
@@ -21,10 +26,7 @@ server:
   servlet:
     context-path: /vollzanbel-api
 
-  # Keep legacy spring.jdbc settings removed—use datasource above. If you need jdbc template
-  # beans, Spring Boot will expose them when a DataSource is configured.
-
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.SQL: ${LOG_LEVEL_HIBERNATE_SQL:DEBUG}
+    org.hibernate.orm.jdbc.bind: ${LOG_LEVEL_HIBERNATE_BIND:TRACE}
