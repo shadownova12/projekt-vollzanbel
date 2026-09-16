@@ -1,0 +1,17 @@
+{
+  "name": "Mage", "characterClass": "Wizard", "level": 3, "race": "Elf",
+  "hp": {"current": 14, "max": 20, "temp": 2}, "ac": 12,
+  "stats": {"strength": 8, "dexterity": 14, "constitution": 12, "intelligence": 17, "wisdom": 10, "charisma": 9},
+  "proficiencyBonus": 2,
+  "skills": [{"name": "Arcana", "ability": "INT", "proficiency": "EXPERT"}],
+  "savingThrows": [{"ability": "WIS", "proficiency": "PROFICIENT"}],
+  "spellSlots": {"1": {"max": 4, "used": 2}},
+  "spells": [{"index": "light", "name": "Light", "desc": ["Shines"], "range": "Touch", "components": ["V"], "duration": "1 hour", "castingTime": "1 action", "level": 0, "school": "Evocation", "isLearned": true, "isLocked": false, "isActive": true}],
+  "inventory": [{"index": "staff", "name": "Staff", "equipmentCategory": "Weapon", "cost": {"quantity": 2, "unit": "gp"}, "weight": 4.0, "isLocked": false, "isCustom": true, "charges": {"id": "staff", "name": "Charges", "current": 2, "maximum": 3, "reset": "LONG_REST"}}],
+  "resources": [{"id": "recovery", "name": "Recovery", "current": 1, "maximum": 1, "reset": "LONG_REST"}],
+  "effects": [{"id": "bless", "name": "Bless", "concentration": true, "roundsRemaining": 5}],
+  "journal": [{"id": 1, "title": "Arrival", "body": "At the gate"}],
+  "combat": {"battles": [{"id": 1, "name": "Encounter", "initiative": 12, "turns": [{"number": 1, "hp": 14}]}]},
+  "speciesTraits": [{"id": "darkvision", "name": "Darkvision"}],
+  "pendingLevelUp": {"fromLevel": 3, "toLevel": 4, "ruleSet": "DND_2014", "steps": [{"id": "hp", "category": "GENERAL", "title": "HP", "description": "Roll", "kind": "NUMBER", "value": "6"}]}
+}

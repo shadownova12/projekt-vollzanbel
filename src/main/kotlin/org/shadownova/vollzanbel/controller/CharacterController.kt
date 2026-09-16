@@ -2,14 +2,14 @@ package org.shadownova.vollzanbel.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.shadownova.vollzanbel.dto.PlayerCharacter
 import org.shadownova.vollzanbel.dto.CharacterSpellRequest
-import org.shadownova.vollzanbel.dto.NewPlayerCharacter
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
+import org.shadownova.vollzanbel.dto.CreateCharacterRequest
+import org.shadownova.vollzanbel.dto.UpdateCharacterRequest
+import org.shadownova.vollzanbel.dto.CharacterSummary
+import org.shadownova.vollzanbel.dto.CharacterListResponse
+import org.shadownova.vollzanbel.service.CharacterSnapshot
+import org.shadownova.vollzanbel.service.CharacterSnapshotCodec
 import org.springframework.http.HttpStatus
 import org.shadownova.vollzanbel.repository.CharacterRepository
 import org.shadownova.vollzanbel.repository.CharacterRow
@@ -21,28 +21,26 @@ import org.shadownova.vollzanbel.service.CharacterService
 class CharacterController(
     val characterRepository: CharacterRepository,
     val characterService: CharacterService,
-    val mapper: ObjectMapper
+    val codec: CharacterSnapshotCodec
 ) {
 
     @GetMapping
-    fun list(@RequestHeader("X-User-Id") userId: Long): Map<String, Any> {
-        val names = characterRepository.listNames(userId)
-        val result = names.map { mapOf("name" to it) }
-        return mapOf("characters" to result)
-    }
+    fun list(@RequestHeader("X-User-Id") userId: Long): CharacterListResponse =
+        CharacterListResponse(characterRepository.listNames(userId).map(::CharacterSummary))
 
     @GetMapping("/{name}")
     fun get(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String): ResponseEntity<PlayerCharacter> {
         val row = characterRepository.findByUserIdAndName(userId, name) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
 
+        val snapshot = codec.decode(row.compressedData)
         return ResponseEntity.ok(PlayerCharacter(
             id = row.id, userId = row.userId, name = row.name,
-            characterSheet = mapper.readValue(gunzip(row.compressedData), Any::class.java)))
+            avatarId = snapshot.avatarId, characterSheet = snapshot.characterSheet))
     }
 
     @PostMapping
-    fun newPlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @RequestBody body: NewPlayerCharacter): Map<String, Any> {
-        val compressed = gzip(mapper.writeValueAsBytes(body.characterSheet))
+    fun createCharacter(@RequestHeader("X-User-Id") userId: Long, @RequestBody body: CreateCharacterRequest): CharacterSummary {
+        val compressed = codec.encode(CharacterSnapshot(body.characterSheet, body.avatarId))
 
         characterRepository.save(
             CharacterRow(
@@ -52,18 +50,18 @@ class CharacterController(
             )
         )
 
-        return mapOf("name" to body.name)
+        return CharacterSummary(body.name)
     }
 
     @PutMapping("/{name}")
-    fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: PlayerCharacter): Map<String, Any> {
+    fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: UpdateCharacterRequest): CharacterSummary {
         val existing = characterRepository.findByUserIdAndName(userId, name)
             ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND)
         if (existing.id != body.id) throw org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT)
-        val compressed = gzip(mapper.writeValueAsBytes(body.characterSheet))
+        val compressed = codec.encode(CharacterSnapshot(body.characterSheet, body.avatarId))
         characterRepository.save(existing.copy(compressedData = compressed))
 
-        return mapOf("name" to name)
+        return CharacterSummary(name)
     }
 
     @DeleteMapping("/{name}")
@@ -96,15 +94,4 @@ class CharacterController(
         return ResponseEntity.ok(characterService.updateSpell(charId, requestBody))
     }
 
-    private fun gzip(input: ByteArray): ByteArray {
-        val baos = ByteArrayOutputStream()
-        GZIPOutputStream(baos).use { it.write(input) }
-        return baos.toByteArray()
-    }
-
-    private fun gunzip(bytes: ByteArray): ByteArray {
-        GZIPInputStream(ByteArrayInputStream(bytes)).use { gis ->
-            return gis.readAllBytes()
-        }
-    }
 }
