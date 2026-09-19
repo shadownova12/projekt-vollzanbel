@@ -1,5 +1,7 @@
 package org.shadownova.vollzanbel.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class EquipmentItem(
     val index: String,
     val name: String,
@@ -13,8 +15,8 @@ data class EquipmentItem(
     val properties: List<String> = emptyList(),
     val damage: String = "",
     val quantity: Int = 1,
-    val isLocked: Boolean = true,
-    val isCustom: Boolean = false,
+    @param:JsonProperty("isLocked") @get:JsonProperty("isLocked") val isLocked: Boolean = true,
+    @param:JsonProperty("isCustom") @get:JsonProperty("isCustom") val isCustom: Boolean = false,
     val equipped: Boolean = false,
     val attuned: Boolean = false,
     val charges: TrackedResource? = null,

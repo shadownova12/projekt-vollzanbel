@@ -15,6 +15,9 @@ import org.shadownova.vollzanbel.repository.CharacterRepository
 import org.shadownova.vollzanbel.repository.CharacterRow
 import org.shadownova.vollzanbel.repository.CharacterSpell
 import org.shadownova.vollzanbel.service.CharacterService
+import org.shadownova.vollzanbel.service.validateCharacter
+import org.springframework.web.server.ResponseStatusException
+import org.springframework.dao.DataIntegrityViolationException
 
 @RestController
 @RequestMapping("/characters")
@@ -40,21 +43,30 @@ class CharacterController(
 
     @PostMapping
     fun createCharacter(@RequestHeader("X-User-Id") userId: Long, @RequestBody body: CreateCharacterRequest): CharacterSummary {
+        val name = body.name.trim()
+        validateCharacter(name, body.characterSheet)
+        if (characterRepository.existsByUserIdAndNameIgnoreCase(userId, name))
+            throw ResponseStatusException(HttpStatus.CONFLICT, "A character with this name already exists")
         val compressed = codec.encode(CharacterSnapshot(body.characterSheet, body.avatarId))
 
-        characterRepository.save(
+        try { characterRepository.save(
             CharacterRow(
                 userId = userId,
-                name = body.name,
+                name = name,
                 compressedData = compressed
             )
-        )
+        ) } catch (error: DataIntegrityViolationException) {
+            if (generateSequence<Throwable>(error) { it.cause }.any { it is java.sql.SQLException && it.sqlState == "23505" })
+                throw ResponseStatusException(HttpStatus.CONFLICT, "A character with this name already exists")
+            throw error
+        }
 
-        return CharacterSummary(body.name)
+        return CharacterSummary(name)
     }
 
     @PutMapping("/{name}")
     fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: UpdateCharacterRequest): CharacterSummary {
+        validateCharacter(name, body.characterSheet)
         val existing = characterRepository.findByUserIdAndName(userId, name)
             ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND)
         if (existing.id != body.id) throw org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT)

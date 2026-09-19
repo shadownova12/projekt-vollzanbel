@@ -1,5 +1,10 @@
 {
   "name": "Mage", "characterClass": "Wizard", "level": 3, "race": "Elf",
+  "subclass": "School of Abjuration", "background": "Folk Hero", "backgroundId": "folk-hero",
+  "backgroundUrl": "https://dnd5e.wikidot.com/background:folk-hero", "backgroundFeature": "Rustic Hospitality",
+  "toolProficiencies": ["Smith's tools", "Vehicles (land)"], "otherProficiencies": ["Longswords"],
+  "setupReviewed": true, "appliedSetupGrants": ["2014:background:folk-hero"],
+  "profile": {"ideals": "Freedom", "bonds": "My village", "flaws": "Impatient"},
   "hp": {"current": 14, "max": 20, "temp": 2}, "ac": 12,
   "stats": {"strength": 8, "dexterity": 14, "constitution": 12, "intelligence": 17, "wisdom": 10, "charisma": 9},
   "proficiencyBonus": 2,

@@ -15,6 +15,7 @@ import org.shadownova.vollzanbel.service.RaceService
 import org.shadownova.vollzanbel.service.RaceSyncService
 import org.shadownova.vollzanbel.service.WeaponSyncService
 import org.shadownova.vollzanbel.service.EquipmentCategorySyncService
+import org.shadownova.vollzanbel.service.BackgroundSyncService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PostMapping
@@ -34,6 +35,7 @@ class InternalController(
     private val raceSyncService: RaceSyncService,
     private val weaponSyncService: WeaponSyncService,
     private val equipmentCategorySyncService: EquipmentCategorySyncService,
+    private val backgroundSyncService: BackgroundSyncService,
 ) {
 
     /**
@@ -58,6 +60,9 @@ class InternalController(
 
     @PostMapping("/equipment-categories/sync")
     fun syncEquipmentCategories() = equipmentCategorySyncService.forceSyncEquipmentCategories()
+
+    @PostMapping("/backgrounds/sync")
+    fun syncBackgrounds() = backgroundSyncService.forceSyncBackgrounds()
 
     @PostMapping("/traits")
     fun createTrait(@RequestBody request: CreateTraitRequest): ResponseEntity<SpeciesTrait> =

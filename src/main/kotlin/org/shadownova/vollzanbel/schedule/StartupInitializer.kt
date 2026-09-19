@@ -6,11 +6,13 @@ import org.shadownova.vollzanbel.service.SpeciesTraitSyncService
 import org.shadownova.vollzanbel.service.RaceSyncService
 import org.shadownova.vollzanbel.service.WeaponSyncService
 import org.shadownova.vollzanbel.service.EquipmentCategorySyncService
+import org.shadownova.vollzanbel.service.BackgroundSyncService
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = ["catalog.sync.enabled"], havingValue = "true", matchIfMissing = true)
 // Runs the sync when the application is fully ready. To use ApplicationRunner
 // instead, remove this class or delete the @Component annotation.
 class StartupInitializer(
@@ -20,6 +22,7 @@ class StartupInitializer(
     private val raceSyncService: RaceSyncService,
     private val weaponSyncService: WeaponSyncService,
     private val equipmentCategorySyncService: EquipmentCategorySyncService,
+    private val backgroundSyncService: BackgroundSyncService,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -32,5 +35,6 @@ class StartupInitializer(
         raceSyncService.syncRaces()
         weaponSyncService.syncWeapons()
         equipmentCategorySyncService.syncEquipmentCategories()
+        backgroundSyncService.syncBackgrounds()
     }
 }

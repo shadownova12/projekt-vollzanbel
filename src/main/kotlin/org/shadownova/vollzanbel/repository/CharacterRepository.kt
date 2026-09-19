@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository
 
 
 @Entity
-@Table(name = "characters")
+@Table(name = "characters", uniqueConstraints = [jakarta.persistence.UniqueConstraint(name = "character_owner_name", columnNames = ["user_id", "name"])])
 data class CharacterRow(
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,12 +27,13 @@ data class CharacterRow(
 	@Column(name = "name", nullable = false)
 	val name: String = "",
 
-	@Column(name = "data", nullable = false)
+	@Column(name = "data", nullable = false, columnDefinition = "bytea")
 	val compressedData: ByteArray
 )
 
 @Repository
 interface CharacterRepository : JpaRepository<CharacterRow, Long> {
+    fun existsByUserIdAndNameIgnoreCase(userId: Long, name: String): Boolean
 
 	@Query(
 		"""

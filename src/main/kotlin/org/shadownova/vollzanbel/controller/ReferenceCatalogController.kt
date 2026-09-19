@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/catalog")
 class ReferenceCatalogController(private val apiClient: Dnd5eApiClient) {
+    @GetMapping("/{resource}/{index}", produces = ["application/json"])
+    fun detail(@PathVariable resource: String, @PathVariable index: String): ResponseEntity<String> =
+        if (resource in setOf("classes", "races", "subraces", "subclasses") && index.matches(Regex("[a-z0-9-]+")))
+            ResponseEntity.ok(apiClient.getReferenceDetail(resource, index))
+        else ResponseEntity.notFound().build()
     private val resources = setOf("languages", "classes", "backgrounds", "subclasses", "subraces")
 
     @GetMapping("/{resource}")

@@ -7,6 +7,9 @@ import org.shadownova.vollzanbel.dto.SpeciesTraitDetailResponse
 import org.shadownova.vollzanbel.dto.SpeciesTraitListResponse
 import org.shadownova.vollzanbel.dto.RaceDetailResponse
 import org.shadownova.vollzanbel.dto.RaceListResponse
+import org.shadownova.vollzanbel.dto.BackgroundDetailResponse
+import org.shadownova.vollzanbel.dto.BackgroundListResponse
+import org.shadownova.vollzanbel.dto.toEntity
 import org.shadownova.vollzanbel.dto.WeaponCategoryResponse
 import org.shadownova.vollzanbel.dto.WeaponDetailResponse
 import org.shadownova.vollzanbel.dto.EquipmentCategoryListResponse
@@ -15,7 +18,6 @@ import org.shadownova.vollzanbel.dto.MagicItemListResponse
 import org.shadownova.vollzanbel.dto.toWeaponEntity
 import org.shadownova.vollzanbel.repository.Spell
 import org.shadownova.vollzanbel.dto.SpellDetailResponse
-import org.shadownova.vollzanbel.dto.toEntity
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
@@ -28,6 +30,9 @@ data class ApiReferenceList(val count: Int = 0, val results: List<ApiReference> 
 class Dnd5eApiClient(
     private val restClient: RestClient
 ) {
+    fun getReferenceDetail(resource: String, index: String): String = restClient.get()
+        .uri("https://www.dnd5eapi.co/api/2014/$resource/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve().body(String::class.java)!!
 
     /** Fetch a compact reference list from one of the 2014 catalog endpoints. */
     fun getReferenceList(resource: String): List<ApiReference> = restClient
@@ -86,6 +91,16 @@ class Dnd5eApiClient(
         .get().uri("https://www.dnd5eapi.co/api/2014/races/$index")
         .accept(MediaType.APPLICATION_JSON).retrieve()
         .body(RaceDetailResponse::class.java)!!.toEntity()
+
+    fun getBackgroundList(): BackgroundListResponse = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/backgrounds")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(BackgroundListResponse::class.java)!!
+
+    fun getBackground(index: String) = restClient
+        .get().uri("https://www.dnd5eapi.co/api/2014/backgrounds/$index")
+        .accept(MediaType.APPLICATION_JSON).retrieve()
+        .body(BackgroundDetailResponse::class.java)!!.toEntity()
 
     fun getWeaponCategory(): WeaponCategoryResponse = restClient
         .get().uri("https://www.dnd5eapi.co/api/2014/equipment-categories/weapon")

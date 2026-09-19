@@ -1,5 +1,7 @@
 package org.shadownova.vollzanbel.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class Spell(
     val index: String,
     val name: String,
@@ -15,9 +17,9 @@ data class Spell(
     val castingTime: String,
     val level: Int,
     val school: String,
-    val isLearned: Boolean = false,
-    val isActive: Boolean = false,
-    val isLocked: Boolean = true,
+    @param:JsonProperty("isLearned") @get:JsonProperty("isLearned") val isLearned: Boolean = false,
+    @param:JsonProperty("isActive") @get:JsonProperty("isActive") val isActive: Boolean = false,
+    @param:JsonProperty("isLocked") @get:JsonProperty("isLocked") val isLocked: Boolean = true,
 )
 
 data class SpellSlotInfo(val max: Int = 0, val used: Int = 0)
