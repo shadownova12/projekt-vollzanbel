@@ -17,6 +17,27 @@ class CharacterDatabaseTest {
     @Autowired lateinit var context: WebApplicationContext
     private val mapper = jacksonObjectMapper()
 
+    @Test fun `HTTP saves accept omitted Kotlin defaults and reject explicit null integers`() {
+        val mvc = MockMvcBuilders.webAppContextSetup(context).build()
+        val sheet = mapper.readTree(javaClass.getResourceAsStream("/character-sheet.json")) as com.fasterxml.jackson.databind.node.ObjectNode
+        sheet.put("name", "Sparse Hero")
+        sheet.putObject("hitDice").put("expression", "3d6")
+        val create = mapper.createObjectNode().put("name", "Sparse Hero")
+        create.set<com.fasterxml.jackson.databind.JsonNode>("characterSheet", sheet)
+        mvc.perform(post("/characters").header("X-User-Id", 7303).contentType("application/json").content(create.toString()))
+            .andExpect(status().isOk)
+        fun load() = mapper.readTree(mvc.perform(get("/characters/Sparse Hero").header("X-User-Id", 7303))
+            .andExpect(status().isOk).andReturn().response.contentAsString)
+        val update = mapper.createObjectNode().put("id", load()["id"].asLong())
+        update.set<com.fasterxml.jackson.databind.JsonNode>("characterSheet", sheet)
+        mvc.perform(put("/characters/Sparse Hero").header("X-User-Id", 7303).contentType("application/json").content(update.toString()))
+            .andExpect(status().isOk)
+        assertEquals(0, load()["characterSheet"]["hitDice"]["spent"].asInt())
+        (sheet["hitDice"] as com.fasterxml.jackson.databind.node.ObjectNode).putNull("spent")
+        mvc.perform(put("/characters/Sparse Hero").header("X-User-Id", 7303).contentType("application/json").content(update.toString()))
+            .andExpect(status().isBadRequest)
+    }
+
     @Test fun `create edit and reload a complete character and enforce ownership and validation`() {
         val mvc = MockMvcBuilders.webAppContextSetup(context).build()
         val original = mapper.readValue(javaClass.getResourceAsStream("/character-sheet.json"), CharacterSheet::class.java)
@@ -32,11 +53,18 @@ class CharacterDatabaseTest {
             toolProficiencies = listOf("Smith's tools", "Vehicles (land)"), setupReviewed = true,
             appliedSetupGrants = setOf("2014:background:folk-hero"),
             profile = CharacterProfile(ideals = "Freedom", bonds = "My village", flaws = "Impatient"))
+        val photoBytes = java.io.ByteArrayOutputStream()
+        javax.imageio.ImageIO.write(java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_RGB), "jpeg", photoBytes)
+        val photo = "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(photoBytes.toByteArray())
         mvc.perform(put("/characters/${original.name}").header("X-User-Id", 7301).contentType("application/json")
-            .content(mapper.writeValueAsString(UpdateCharacterRequest(created.id, "spark_gold", edited))))
+            .content(mapper.writeValueAsString(UpdateCharacterRequest(created.id, photo, edited))))
             .andExpect(status().isOk)
         assertEquals(edited, load().characterSheet)
-        assertEquals("spark_gold", load().avatarId)
+        assertEquals(photo, load().avatarId)
+        mvc.perform(put("/characters/${original.name}").header("X-User-Id", 7301).contentType("application/json")
+            .content(mapper.writeValueAsString(UpdateCharacterRequest(created.id, "data:image/jpeg;base64,invalid", edited))))
+            .andExpect(status().isBadRequest)
+        assertEquals(photo, load().avatarId)
         mvc.perform(get("/characters/${original.name}").header("X-User-Id", 7302)).andExpect(status().isNotFound)
         mvc.perform(post("/characters").header("X-User-Id", 7301).contentType("application/json")
             .content(mapper.writeValueAsString(CreateCharacterRequest(original.name.lowercase(), characterSheet = original))))

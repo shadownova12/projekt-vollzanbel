@@ -16,6 +16,7 @@ import org.shadownova.vollzanbel.repository.CharacterRow
 import org.shadownova.vollzanbel.repository.CharacterSpell
 import org.shadownova.vollzanbel.service.CharacterService
 import org.shadownova.vollzanbel.service.validateCharacter
+import org.shadownova.vollzanbel.service.validateCharacterPhoto
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.dao.DataIntegrityViolationException
 
@@ -45,6 +46,7 @@ class CharacterController(
     fun createCharacter(@RequestHeader("X-User-Id") userId: Long, @RequestBody body: CreateCharacterRequest): CharacterSummary {
         val name = body.name.trim()
         validateCharacter(name, body.characterSheet)
+        validateCharacterPhoto(body.avatarId)
         if (characterRepository.existsByUserIdAndNameIgnoreCase(userId, name))
             throw ResponseStatusException(HttpStatus.CONFLICT, "A character with this name already exists")
         val compressed = codec.encode(CharacterSnapshot(body.characterSheet, body.avatarId))
@@ -67,9 +69,10 @@ class CharacterController(
     @PutMapping("/{name}")
     fun updatePlayerCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: UpdateCharacterRequest): CharacterSummary {
         validateCharacter(name, body.characterSheet)
+        validateCharacterPhoto(body.avatarId)
         val existing = characterRepository.findByUserIdAndName(userId, name)
-            ?: throw org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND)
-        if (existing.id != body.id) throw org.springframework.web.server.ResponseStatusException(HttpStatus.CONFLICT)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (existing.id != body.id) throw ResponseStatusException(HttpStatus.CONFLICT)
         val compressed = codec.encode(CharacterSnapshot(body.characterSheet, body.avatarId))
         characterRepository.save(existing.copy(compressedData = compressed))
 

@@ -18,5 +18,6 @@
   "journal": [{"id": 1, "title": "Arrival", "body": "At the gate"}],
   "combat": {"battles": [{"id": 1, "name": "Encounter", "initiative": 12, "turns": [{"number": 1, "hp": 14}]}]},
   "speciesTraits": [{"id": "darkvision", "name": "Darkvision"}],
+  "customOptions": [{"id": "custom-1", "category": "races", "name": "Ashkin", "source": "Home setting", "page": "12", "notes": "Resistance changes by season."}],
   "pendingLevelUp": {"fromLevel": 3, "toLevel": 4, "ruleSet": "DND_2014", "steps": [{"id": "hp", "category": "GENERAL", "title": "HP", "description": "Roll", "kind": "NUMBER", "value": "6"}]}
 }

@@ -41,6 +41,7 @@ data class CharacterSheet(
     val classFeatures: List<ClassFeature> = emptyList(),
     val speciesTraits: List<SpeciesTrait> = emptyList(),
     val feats: List<Feat> = emptyList(),
+    val customOptions: List<CharacterCustomOption> = emptyList(),
     val weaponMasteries: List<WeaponMastery> = emptyList(),
     val languages: List<String> = emptyList(),
     val armorTraining: ArmorTraining = ArmorTraining(),
