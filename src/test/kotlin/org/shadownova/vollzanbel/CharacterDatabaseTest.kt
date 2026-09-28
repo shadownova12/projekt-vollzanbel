@@ -9,13 +9,40 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.context.WebApplicationContext
+import org.shadownova.vollzanbel.repository.SpellRepository
 import org.shadownova.vollzanbel.dto.*
+import java.time.Instant
 
 /** Real HTTP binding, controller, compression, JPA, and isolated database round trip. */
 @SpringBootTest
 class CharacterDatabaseTest {
     @Autowired lateinit var context: WebApplicationContext
+    @Autowired lateinit var spellRepository: SpellRepository
     private val mapper = jacksonObjectMapper()
+
+    @Test fun `spell catalog stores and returns source attribution`() {
+        val source = "D&D 5e 2014 API"
+        spellRepository.save(org.shadownova.vollzanbel.repository.Spell(
+            index = "source-attribution-test",
+            name = "Source Attribution Test",
+            level = 1,
+            school = "Abjuration",
+            source = source,
+            description = "",
+            higherLevel = "",
+            range = "Self",
+            components = "V",
+            material = "",
+            ritual = false,
+            duration = "Instantaneous",
+            concentration = false,
+            castingTime = "1 action",
+            url = "",
+            updatedAt = Instant.now(),
+        ))
+
+        assertEquals(source, spellRepository.findSpellSummary("source-attribution-test").source)
+    }
 
     @Test fun `HTTP saves accept omitted Kotlin defaults and reject explicit null integers`() {
         val mvc = MockMvcBuilders.webAppContextSetup(context).build()

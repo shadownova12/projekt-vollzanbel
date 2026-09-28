@@ -20,6 +20,9 @@ data class Spell(
     val level: Int,
     val school: String,
 
+    @Column(name = "source", nullable = false, columnDefinition = "varchar(255) default 'D&D 5e 2014 API'")
+    val source: String = "D&D 5e 2014 API",
+
     @Lob
     @Column(name = "description", columnDefinition = "TEXT")
     val description: String,
@@ -55,7 +58,8 @@ data class SpellSummary(
     val name: String?,
     val level: Int?,
     val url: String?,
-    val school: String?
+    val school: String?,
+    val source: String? = null,
 )
 
 @Repository
@@ -64,10 +68,10 @@ interface SpellRepository : JpaRepository<Spell, String> {
     // Use a JPQL constructor expression to map selected columns directly into the
     // Kotlin data class `SpellSummary`. The fully-qualified class name must be
     // used in the `new` expression.
-    @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school) FROM Spell s ORDER BY s.name")
+    @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school, s.source) FROM Spell s ORDER BY s.name")
     fun getAllSpellSummaries(): List<SpellSummary>
 
-    @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school) FROM Spell s WHERE s.index=:index")
+    @Query("SELECT new org.shadownova.vollzanbel.repository.SpellSummary(s.index, s.name, s.level, s.url, s.school, s.source) FROM Spell s WHERE s.index=:index")
     fun findSpellSummary(index: String): SpellSummary
 
     fun findByLevelAndSchool(

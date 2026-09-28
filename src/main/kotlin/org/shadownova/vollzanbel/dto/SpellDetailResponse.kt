@@ -43,6 +43,7 @@ fun SpellDetailResponse.toEntity(): Spell {
         name = this.name,
         level = this.level ?: 0,
         school = this.school?.name ?: "",
+        source = "D&D 5e 2014 API",
         description = this.desc?.joinToString("\n\n") ?: "",
         higherLevel = this.higherLevel?.joinToString("\n\n") ?: "",
         range = this.range ?: "",
@@ -56,4 +57,3 @@ fun SpellDetailResponse.toEntity(): Spell {
         updatedAt = this.updatedAt?.let { Instant.parse(it) } ?: Instant.now()
     )
 }
-

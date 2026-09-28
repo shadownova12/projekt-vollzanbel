@@ -20,7 +20,13 @@ data class Spell(
     @param:JsonProperty("isLearned") @get:JsonProperty("isLearned") val isLearned: Boolean = false,
     @param:JsonProperty("isActive") @get:JsonProperty("isActive") val isActive: Boolean = false,
     @param:JsonProperty("isLocked") @get:JsonProperty("isLocked") val isLocked: Boolean = true,
+    val source: String = "",
+    val sourceKey: String = "",
+    val sourceUrl: String = "",
+    val sourceLicenses: List<SpellSourceLicense> = emptyList(),
 )
+
+data class SpellSourceLicense(val name: String, val url: String = "")
 
 data class SpellSlotInfo(val max: Int = 0, val used: Int = 0)
 

@@ -11,7 +11,7 @@
   "skills": [{"name": "Arcana", "ability": "INT", "proficiency": "EXPERT"}],
   "savingThrows": [{"ability": "WIS", "proficiency": "PROFICIENT"}],
   "spellSlots": {"1": {"max": 4, "used": 2}},
-  "spells": [{"index": "light", "name": "Light", "desc": ["Shines"], "range": "Touch", "components": ["V"], "duration": "1 hour", "castingTime": "1 action", "level": 0, "school": "Evocation", "isLearned": true, "isLocked": false, "isActive": true}],
+  "spells": [{"index": "light", "name": "Light", "desc": ["Shines"], "range": "Touch", "components": ["V"], "duration": "1 hour", "castingTime": "1 action", "level": 0, "school": "Evocation", "isLearned": true, "isLocked": false, "isActive": true, "source": "5e 2014 Rules", "sourceKey": "srd-2014", "sourceUrl": "https://dnd.wizards.com/resources/systems-reference-document", "sourceLicenses": [{"name": "Creative Commons Attribution 4.0", "url": "https://open5e.com/legal/cc-by-40"}]}],
   "inventory": [{"index": "staff", "name": "Staff", "equipmentCategory": "Weapon", "cost": {"quantity": 2, "unit": "gp"}, "weight": 4.0, "isLocked": false, "isCustom": true, "charges": {"id": "staff", "name": "Charges", "current": 2, "maximum": 3, "reset": "LONG_REST"}}],
   "resources": [{"id": "recovery", "name": "Recovery", "current": 1, "maximum": 1, "reset": "LONG_REST"}],
   "effects": [{"id": "bless", "name": "Bless", "concentration": true, "roundsRemaining": 5}],
