@@ -3,7 +3,6 @@ package org.shadownova.vollzanbel.repository
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -23,11 +22,9 @@ data class Spell(
     @Column(name = "source", nullable = false, columnDefinition = "varchar(255) default 'D&D 5e 2014 API'")
     val source: String = "D&D 5e 2014 API",
 
-    @Lob
     @Column(name = "description", columnDefinition = "TEXT")
     val description: String,
 
-    @Lob
     @Column(name = "higher_level", columnDefinition = "TEXT")
     val higherLevel: String,
 

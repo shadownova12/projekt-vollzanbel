@@ -52,4 +52,5 @@ data class CharacterSheet(
     val conditions: Set<String> = emptySet(),
     val exhaustionLevel: Int = 0,
     val pendingLevelUp: PendingLevelUp? = null,
+    val classLevels: List<ClassLevel> = emptyList(),
 )

@@ -25,6 +25,7 @@ data class EquipmentItem(
 data class ItemCost(
     val quantity: Int,
     val unit: String,
+    val isKnown: Boolean = quantity > 0 && unit.isNotBlank(),
 )
 
 data class Currency(

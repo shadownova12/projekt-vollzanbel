@@ -18,6 +18,7 @@ data class Spell(
     val level: Int,
     val school: String,
     @param:JsonProperty("isLearned") @get:JsonProperty("isLearned") val isLearned: Boolean = false,
+    @param:JsonProperty("isPrepared") @get:JsonProperty("isPrepared") val isPrepared: Boolean = false,
     @param:JsonProperty("isActive") @get:JsonProperty("isActive") val isActive: Boolean = false,
     @param:JsonProperty("isLocked") @get:JsonProperty("isLocked") val isLocked: Boolean = true,
     val source: String = "",

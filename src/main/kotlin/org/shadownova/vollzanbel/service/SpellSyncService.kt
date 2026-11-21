@@ -9,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class SpellSyncService(
     private val spellRepository: SpellRepository,
-    private val dnd5eApiClient: Dnd5eApiClient
+    private val dnd5eApiClient: Dnd5eApiClient,
+    private val spellTextStorageMigration: SpellTextStorageMigration,
 ) {
 
     @Transactional
     fun syncSpells() {
+        spellTextStorageMigration.migrateLegacyLargeObjectsIfNeeded()
         val existing = spellRepository.count()
         if (existing == 0L) {
             importAllSpells()
@@ -24,6 +26,7 @@ class SpellSyncService(
 
     @Transactional
     fun forceSyncSpells() {
+        spellTextStorageMigration.migrateLegacyLargeObjectsIfNeeded()
         log.info("Forcing spell sync")
         importAllSpells()
     }

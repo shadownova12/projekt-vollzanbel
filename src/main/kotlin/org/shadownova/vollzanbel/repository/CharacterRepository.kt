@@ -34,6 +34,7 @@ data class CharacterRow(
 @Repository
 interface CharacterRepository : JpaRepository<CharacterRow, Long> {
     fun existsByUserIdAndNameIgnoreCase(userId: Long, name: String): Boolean
+    fun existsByUserIdAndNameIgnoreCaseAndIdNot(userId: Long, name: String, id: Long): Boolean
 
 	@Query(
 		"""

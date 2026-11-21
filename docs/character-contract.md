@@ -21,6 +21,11 @@ continues to represent Kotlin `species`. Existing enum spellings, integer-keyed
 spell slot objects, and optional-field defaults remain unchanged. Unknown legacy
 request metadata (`userId`, `name`, or a fake creation `id`) is ignored by request
 DTOs, never trusted for ownership. Nested sheet data must conform to typed models.
+`classLevels` stores each class name and level; its entries sum to the existing
+total `level`. It defaults empty for older sheets, and level-up drafts record which
+class is advancing.
+Inventory item costs include `isKnown`; missing/zero legacy prices display as
+unknown, while an explicitly known zero price displays as free.
 
 `CharacterSnapshotCodec` owns GZIP and JSON storage. It reads legacy compressed
 sheets directly and writes version 1 `{version, avatarId, characterSheet}` snapshots

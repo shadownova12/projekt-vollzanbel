@@ -6,6 +6,7 @@ import org.shadownova.vollzanbel.dto.PlayerCharacter
 import org.shadownova.vollzanbel.dto.CharacterSpellRequest
 import org.shadownova.vollzanbel.dto.CreateCharacterRequest
 import org.shadownova.vollzanbel.dto.UpdateCharacterRequest
+import org.shadownova.vollzanbel.dto.RenameCharacterRequest
 import org.shadownova.vollzanbel.dto.CharacterSummary
 import org.shadownova.vollzanbel.dto.CharacterListResponse
 import org.shadownova.vollzanbel.service.CharacterSnapshot
@@ -19,6 +20,7 @@ import org.shadownova.vollzanbel.service.validateCharacter
 import org.shadownova.vollzanbel.service.validateCharacterPhoto
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.transaction.annotation.Transactional
 
 @RestController
 @RequestMapping("/characters")
@@ -77,6 +79,33 @@ class CharacterController(
         characterRepository.save(existing.copy(compressedData = compressed))
 
         return CharacterSummary(name)
+    }
+
+    @PutMapping("/{name}/rename")
+    @Transactional
+    fun renameCharacter(@RequestHeader("X-User-Id") userId: Long, @PathVariable name: String, @RequestBody body: RenameCharacterRequest): CharacterSummary {
+        val existing = characterRepository.findByUserIdAndName(userId, name)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (existing.id != body.id) throw ResponseStatusException(HttpStatus.CONFLICT)
+
+        val newName = body.newName.trim()
+        val snapshot = codec.decode(existing.compressedData)
+        val renamedSheet = snapshot.characterSheet.copy(name = newName)
+        validateCharacter(newName, renamedSheet)
+        if (characterRepository.existsByUserIdAndNameIgnoreCaseAndIdNot(userId, newName, existing.id))
+            throw ResponseStatusException(HttpStatus.CONFLICT, "A character with this name already exists")
+
+        try {
+            characterRepository.saveAndFlush(existing.copy(
+                name = newName,
+                compressedData = codec.encode(snapshot.copy(characterSheet = renamedSheet)),
+            ))
+        } catch (error: DataIntegrityViolationException) {
+            if (generateSequence<Throwable>(error) { it.cause }.any { it is java.sql.SQLException && it.sqlState == "23505" })
+                throw ResponseStatusException(HttpStatus.CONFLICT, "A character with this name already exists")
+            throw error
+        }
+        return CharacterSummary(newName)
     }
 
     @DeleteMapping("/{name}")

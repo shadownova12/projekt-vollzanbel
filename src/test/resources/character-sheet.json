@@ -1,5 +1,5 @@
 {
-  "name": "Mage", "characterClass": "Wizard", "level": 3, "race": "Elf",
+  "name": "Mage", "characterClass": "Wizard", "classLevels": [{"name": "Wizard", "level": 3}], "level": 3, "race": "Elf",
   "subclass": "School of Abjuration", "background": "Folk Hero", "backgroundId": "folk-hero",
   "backgroundUrl": "https://dnd5e.wikidot.com/background:folk-hero", "backgroundFeature": "Rustic Hospitality",
   "toolProficiencies": ["Smith's tools", "Vehicles (land)"], "otherProficiencies": ["Longswords"],

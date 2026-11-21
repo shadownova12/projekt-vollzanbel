@@ -28,6 +28,13 @@ data class UpdateCharacterRequest(
     val characterSheet: CharacterSheet,
 )
 
+/** Rename an existing character while preserving its identity and linked records. */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class RenameCharacterRequest(
+    val id: Long,
+    val newName: String,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CharacterSummary(val name: String)
 

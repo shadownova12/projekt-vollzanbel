@@ -12,6 +12,9 @@ fun validateCharacter(name: String, sheet: CharacterSheet) {
     check(sheet.name.isNotBlank() && sheet.name.length <= 100, "Display name must contain 1–100 characters")
     check(sheet.characterClass.isNotBlank() && sheet.species.isNotBlank(), "Class and species are required")
     check(sheet.level in 1..20, "Level must be 1–20")
+    check(sheet.classLevels.isEmpty() || (
+        sheet.classLevels.all { it.level in 0..20 } && sheet.classLevels.sumOf { it.level } == sheet.level
+    ), "Class levels must add up to the character level")
     check(sheet.experiencePoints >= 0, "XP cannot be negative")
     check(sheet.hp.max > 0 && sheet.hp.current in 0..sheet.hp.max && sheet.hp.temp >= 0, "HP must be nonnegative and current HP cannot exceed maximum HP")
     check(sheet.ac in 1..100, "AC must be 1–100")

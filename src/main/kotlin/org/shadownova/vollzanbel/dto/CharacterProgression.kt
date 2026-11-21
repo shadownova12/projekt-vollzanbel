@@ -23,4 +23,7 @@ data class PendingLevelUp(
     val toLevel: Int,
     val ruleSet: RuleSet,
     val steps: List<LevelUpStep>,
+    val className: String = "",
+    val fromClassLevel: Int = 0,
+    val toClassLevel: Int = 0,
 )
